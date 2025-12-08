@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: Microservice
+server:
+  port: 8000
