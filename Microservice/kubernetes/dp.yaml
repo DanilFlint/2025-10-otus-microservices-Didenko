@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ok-app-dp
+  labels:
+    app: ok-app-dp
+spec:
+  replicas: 3
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      env: ok-app
+  template:
+    metadata:
+      labels:
+        env: ok-app
+    spec:
+      containers:
+      - name: ok-app-pod-dp
+        image: danilflint/ok_microservice
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 20
+          failureThreshold: 3
+          timeoutSeconds: 5
+      
