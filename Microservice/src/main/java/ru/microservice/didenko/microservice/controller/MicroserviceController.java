@@ -8,7 +8,7 @@ import ru.microservice.didenko.microservice.model.Status;
 @RestController
 public class MicroserviceController {
 
-    @GetMapping("/health/")
+    @GetMapping("/health")
     public MicroserviceResponse getHealth() {
         return new MicroserviceResponse(Status.OK);
     }

@@ -9,5 +9,5 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /microservice
 COPY --from=builder /microservice/target/Microservice-*.jar /microservice/microservice.jar
 EXPOSE 8000
-ENTRYPOINT ["java", "-jar", "microservice.jar"]
+ENTRYPOINT ["java", "-jar", "/microservice/microservice.jar"]
 
