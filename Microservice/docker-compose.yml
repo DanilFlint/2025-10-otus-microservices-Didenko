@@ -7,3 +7,40 @@ services:
     - "8000:8000"
     container_name: microservice-container
     restart: no
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+    - ok-network
+    environment:
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mydatabase
+    - SPRING_DATASOURCE_USERNAME=user
+    - SPRING_DATASOURCE_PASSWORD=password
+    - SPRING_FLYWAY_URL=jdbc:postgresql://db:5432/mydatabase
+    - SPRING_FLYWAY_USER=user
+    - SPRING_FLYWAY_PASSWORD=password
+  db:
+    image: postgres:latest
+    container_name: microservice-db-container
+    volumes:
+    - postgres_data_ms:/var/lib/postgresql
+
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    healthcheck: # Добавляем проверку готовности БД
+      test: [ "CMD-SHELL", "pg_isready -U user -d mydatabase" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: no
+    networks:
+    - ok-network
+volumes:
+  postgres_data_ms:
+    driver: local
+networks:
+      ok-network:

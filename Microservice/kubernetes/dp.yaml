@@ -2,11 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ok-app-dp
-  labels:
-    app: ok-app-dp
 spec:
   replicas: 3
-  minReadySeconds: 20
   selector:
     matchLabels:
       env: ok-app
@@ -20,13 +17,35 @@ spec:
         image: danilflint/ok_microservice
         ports:
         - containerPort: 8000
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ok-app-config
+              key: DB_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: ok-app-config
+              key: DB_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTS_PASSWORD
+        - name: SPRING_JPA_DATABASE_PLATFORM
+          valueFrom:
+            configMapKeyRef:
+              name: ok-app-config
+              key: DB_DIALECT
+        - name: SPRING_FLYWAY_ENABLED
+          value: "false"
         readinessProbe:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 10
+          initialDelaySeconds: 25
           periodSeconds: 10
-          successThreshold: 1
           failureThreshold: 3
         livenessProbe:
           httpGet:
@@ -34,6 +53,5 @@ spec:
             port: 8000
           initialDelaySeconds: 20
           periodSeconds: 20
-          failureThreshold: 3
-          timeoutSeconds: 5
+          failureThreshold: 5
       

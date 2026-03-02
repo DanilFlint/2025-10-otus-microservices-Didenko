@@ -1,0 +1,52 @@
+# Параметры аутентификации
+auth:
+  username: "user"
+  password: "password"
+  database: "mydatabase"
+  # Секрет будет создан автоматически с этими данными
+
+# Настройки основного узла (Primary)
+primary:
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: "standard" # Или используйте тот, что в вашем кластере
+
+  # Ограничения ресурсов (чтобы база не "съела" весь Minikube)
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  # Безопасность и права доступа (КРИТИЧНО для Minikube/Docker)
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+
+# Исправление прав доступа к тому (автоматический chmod)
+volumePermissions:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/os-shell
+    # Изменено на 'latest' или более стабильный минорный тег для обхода ErrImagePull
+    tag: latest
+  # Добавляем ресурсы для init-контейнера, чтобы убрать Warning от Helm
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Дополнительные настройки логирования (опционально)
+postgresqlLogConnections: "false"
+postgresqlLogDisconnections: "false"
+postgresqlLogHostname: "false"
