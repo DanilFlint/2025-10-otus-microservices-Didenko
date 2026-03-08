@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ok-metrics
+  labels:
+    app: ok-metrics
+spec:
+  selector:
+    env: ok-app
+  ports:
+  - protocol: TCP
+    name: metrics
+    port: 8090
+    targetPort: 8000
