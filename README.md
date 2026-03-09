@@ -44,5 +44,18 @@ https://krew.sigs.k8s.io/docs/user-guide/setup/install/ - установка kre
 4. `kubectl apply -f kubernetes/.`
 4. `curl http://arch.homework/health` (прописать у себя в /etc/hosts хост arch.homework)
 
+## HW4  
+#### Запуск кластера  
+1. `cd Microservice`
+2. `minikube start --nodes 2`
+3. `minikube addons enable ingress`
+4. `kubectl create configmap ok-app-sql-migrations --from-file=./src/main/resources/db/migration/V1__init.sql`
+5. `helm install db oci://registry-1.docker.io/bitnamicharts/postgresql -f ./kubernetes/values.yaml`
+6. `kubectl apply -f ./kubernetes/job-migration.yaml`
+4. `kubectl apply -f kubernetes/.`
+4. `curl http://arch.homework/health` (прописать у себя в /etc/hosts хост arch.homework)
+
+
+
 
 
