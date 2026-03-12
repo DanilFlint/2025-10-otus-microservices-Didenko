@@ -1,0 +1,421 @@
+{
+	"info": {
+		"_postman_id": "ed8a09d9-d497-4dc5-9a3e-85f69e3d9e6b",
+		"name": "Microservices HW Scenario",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19869900"
+	},
+	"item": [
+		{
+			"name": "1. Register User 1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Генерация случайных данных для Пользователя 1",
+							"const randomId = pm.variables.replaceIn('{{$randomInt}}');",
+							"pm.collectionVariables.set('user1_login', 'user' + randomId);",
+							"pm.collectionVariables.set('user1_pass', 'pass' + randomId);",
+							"pm.collectionVariables.set('user1_name', pm.variables.replaceIn('{{$randomFirstName}}'));",
+							"pm.collectionVariables.set('user1_last', pm.variables.replaceIn('{{$randomLastName}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();",
+							"pm.collectionVariables.set('user1_id', jsonData.id);",
+							"pm.test('User 1 Registered', () => pm.response.to.have.status(201));"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{user1_name}}\",\n    \"lastname\": \"{{user1_last}}\",\n    \"login\": \"{{user1_login}}\",\n    \"password\": \"{{user1_pass}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Check Profile Unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Unauthorized access denied', () => {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/users/{{user1_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"{{user1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Login User 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const token1 = pm.response.text();",
+							"pm.collectionVariables.set('token1', token1);",
+							"pm.test('User 1 Logged in', () => pm.response.to.have.status(200));"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"login\": \"{{user1_login}}\",\n    \"password\": \"{{user1_pass}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Update Profile User 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Profile updated', () => pm.response.to.have.status(200));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"UpdatedName\",\n    \"lastname\": \"UpdatedLast\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/users/{{user1_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"{{user1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Verify Profile Change",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();",
+							"pm.test('Data is updated', () => {",
+							"    pm.expect(jsonData.name).to.eql('UpdatedName');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/users/{{user1_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"{{user1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Register User 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomId = pm.variables.replaceIn('{{$randomInt}}');",
+							"pm.collectionVariables.set('user2_login', 'user' + randomId);",
+							"pm.collectionVariables.set('user2_pass', 'pass' + randomId);"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('User 2 Registered', () => pm.response.to.have.status(201));"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"UserTwo\",\n    \"lastname\": \"LastTwo\",\n    \"login\": \"{{user2_login}}\",\n    \"password\": \"{{user2_pass}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Login User 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const token2 = pm.response.text();",
+							"pm.collectionVariables.set('token2', token2);",
+							"pm.test('User 2 Logged in', () => pm.response.to.have.status(200));"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"login\": \"{{user2_login}}\",\n    \"password\": \"{{user2_pass}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. User 2 Access to User 1 (Should Fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('User 2 cannot see User 1', () => {",
+							"    pm.expect(pm.response.code).to.be.oneOf([403, 401, 404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/users/{{user1_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"{{user1_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "user1_id",
+			"value": ""
+		},
+		{
+			"key": "token1",
+			"value": ""
+		},
+		{
+			"key": "token2",
+			"value": ""
+		},
+		{
+			"key": "user1_login",
+			"value": ""
+		},
+		{
+			"key": "user1_pass",
+			"value": ""
+		},
+		{
+			"key": "user1_name",
+			"value": ""
+		},
+		{
+			"key": "user1_last",
+			"value": ""
+		},
+		{
+			"key": "user2_login",
+			"value": ""
+		},
+		{
+			"key": "user2_pass",
+			"value": ""
+		}
+	]
+}

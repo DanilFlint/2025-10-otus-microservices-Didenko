@@ -1,0 +1,12 @@
+server:
+  port: 8088
+spring:
+  application:
+    name: AuthService
+  r2dbc:
+    password: password
+    username: user
+    url: r2dbc:postgresql://localhost:5432/mydatabase
+jwt:
+  private.key: classpath:app.key
+  public.key: classpath:app.pub
