@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: microservice-db-container
+    volumes:
+    - postgres_data_ms:/var/lib/postgresql
+
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+    - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d mydatabase" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: no
+    networks:
+    - ok-network
+  flyway:
+    image: flyway/flyway:10.0
+    command: migrate
+    volumes:
+    - ./user-service/src/main/resources/db/migration:/flyway/sql
+    environment:
+    - FLYWAY_URL=jdbc:postgresql://db:5432/mydatabase
+    - FLYWAY_USER=user
+    - FLYWAY_PASSWORD=password
+    - FLYWAY_CONNECT_RETRIES=60
+    - FLYWAY_BASELINE_ON_MIGRATE=true
+    networks:
+    - ok-network
+    depends_on:
+      db:
+        condition: service_healthy
+  user-service:
+    image: danilflint/user_service:1.0
+    ports:
+    - "8000:8000"
+    container_name: user-service-container
+    restart: no
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+    - ok-network
+    environment:
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mydatabase
+    - SPRING_DATASOURCE_USERNAME=user
+    - SPRING_DATASOURCE_PASSWORD=password
+  auth-service:
+    image: danilflint/auth_service:1.0
+    ports:
+    - "8088:8088"
+    #- "5005:5005"
+    container_name: auth-service-container
+    restart: no
+    environment:
+    #- JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    - SPRING_R2DBC_PASSWORD=password
+    - SPRING_R2DBC_USERNAME=user
+    - SPRING_R2DBC_URL=r2dbc:postgresql://db:5432/mydatabase
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ok-network
+  gateway:
+    image: danilflint/gateway:1.0
+    ports:
+    - "9000:9000"
+    #- "5006:5006"
+    container_name: gateway-container
+    restart: no
+    environment:
+    #- JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
+    - SERVICES_AUTH_BASE_URL=http://auth-service:8088
+    - SERVICES_AUTH_VALIDATE_PATH=/api/v1/auth/validate
+
+    - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_ROUTES_0_ID=users_route
+    - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_ROUTES_0_URI=http://user-service:8000
+    - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_ROUTES_0_PREDICATES_0=Path=/api/v1/users/**
+    - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_ROUTES_0_FILTERS_0_NAME=AuthenticationFilter
+
+    - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_ROUTES_1_ID=auth_route
+    - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_ROUTES_1_URI=http://auth-service:8088
+    - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_ROUTES_1_PREDICATES_0=Path=/api/v1/auth/**
+    depends_on:
+    - auth-service
+    - user-service
+    networks:
+    - ok-network
+volumes:
+  postgres_data_ms:
+    driver: local
+networks:
+      ok-network:

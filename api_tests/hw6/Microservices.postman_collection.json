@@ -1,0 +1,279 @@
+{
+	"info": {
+		"_postman_id": "0b04b21c-4824-4006-a70e-3d00271d82b2",
+		"name": "Microservices",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19869900"
+	},
+	"item": [
+		{
+			"name": "/api",
+			"item": [
+				{
+					"name": "/v1",
+					"item": [
+						{
+							"name": "/users",
+							"item": [
+								{
+									"name": "Create User",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"Danil\",\r\n    \"lastname\": \"Didenko\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseUrl}}/api/v1/users",
+											"protocol": "http",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update User",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"Danil\",\r\n    \"lastname\": \"Didenko2\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseUrl}}/api/v1/users/{{id}}",
+											"protocol": "http",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"{{id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get User",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{baseUrl}}/api/v1/users/{{id}}",
+											"protocol": "http",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"{{id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete User",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://{{baseUrl}}/api/v1/users/{{id}}",
+											"protocol": "http",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"{{id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Users",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{baseUrl}}/api/v1/users",
+											"protocol": "http",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "/auth",
+							"item": [
+								{
+									"name": "/register",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"Danil\",\r\n    \"lastname\": \"Didenko\",\r\n    \"login\": \"ddidenko2\",\r\n    \"password\": \"1111\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseUrl}}/api/v1/auth/register",
+											"protocol": "http",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "/token",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"login\": \"ddidenko2\",\r\n    \"password\": \"1111\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseUrl}}/api/v1/auth/token",
+											"protocol": "http",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"token"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/health/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"health",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

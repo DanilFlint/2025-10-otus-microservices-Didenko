@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: user-app-migration
+spec:
+  template:
+    spec:
+      containers:
+      - name: flyway-migration
+        image: flyway/flyway:10-alpine
+        args: ["migrate"]
+        env:
+        # Прямое указание параметров, чтобы не зависеть от лишних ConfigMap
+        - name: FLYWAY_URL
+          value: "jdbc:postgresql://db-postgresql:5432/mydatabase"
+        - name: FLYWAY_USER
+          value: "user"
+        - name: FLYWAY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-postgresql
+              key: password # Ключ пароля внутри секрета
+        - name: FLYWAY_CONNECT_RETRIES
+          value: "60"
+        volumeMounts:
+        - name: migrations
+          mountPath: /flyway/sql
+      volumes:
+      - name: migrations
+        configMap:
+          name: user-app-sql-migrations
+      restartPolicy: OnFailure
+  backoffLimit: 4

@@ -85,4 +85,33 @@ https://krew.sigs.k8s.io/docs/user-guide/setup/install/ - установка kre
 #### Результат стресс-тестирования
 ![stress-test.png](Microservice/api_tests/stress-test.png)
 
+## HW6
+#### Запуск кластера
+1. `minikube start --nodes 2`
+2. `minikube addons enable ingress`
+3. `kubectl create configmap user-app-sql-migrations --from-file=./user-service/src/main/resources/db/migration/V1__init.sql`
+4. `helm install db oci://registry-1.docker.io/bitnamicharts/postgresql -f ./kubernetes/values/values.yaml`
+5. `kubectl apply -f kubernetes/manifests/user-app/ -R`
+6. `curl http://arch.homework/health` (прописать у себя в /etc/hosts хост arch.homework)
+
+#### Api
+Postman коллекция API: ./api_tests/hw6/Microservices.postman_collection.json
+
+#### Запуск тестов
+Для запуска тестов в postman использовать json: ./api_tests/hw6/MicroservicesTest.postman_collection.json
+
+```
+newman run MicroservicesTest.postman_collection.json \
+--global-var "baseUrl=arch.homework" \
+--reporters cli \
+--verbose
+```
+
+#### Результаты тестирования
+![img.png](api_tests/hw6/img.png)  
+![img_1.png](api_tests/hw6/img_1.png)
+
+
+#### Архитектура приложения
+![Arch.png](api_tests/hw6/Arch.png)![img.png](img.png)
 

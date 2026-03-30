@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-cm
+data:
+  application.yaml: |
+    spring:
+      datasource:
+        url: jdbc:postgresql://db-postgresql:5432/mydatabase
+        username: user
+        password: password
+        driver-class-name: org.postgresql.Driver
